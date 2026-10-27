@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0b1220">
+  <link rel="icon" type="image/svg+xml" href="/static/logo.svg">
+  <title>Connect · Ping_A_Friend</title>
+  <link rel="stylesheet" href="/static/style.css"><script src="/static/login.js" defer></script>
+</head>
+<body>
+  <main class="login">
+    <div class="brand"><span class="mark" aria-hidden="true">↗</span><div><p class="eyebrow">YOUR LOCAL NETWORK</p><h1>Ping_A_Friend<span class="dot">.</span></h1></div></div>
+    <section class="setup-panel">
+      <h2>Connect to your dashboard</h2>
+      <p>The host creates and loads its access key automatically. Use the pairing link or key shown in its terminal to connect this device once.</p>
+      <form id="login-form">
+        <label for="access-key">Dashboard access key</label>
+        <input id="access-key" type="password" autocomplete="current-password" required maxlength="256" autofocus>
+        <div id="login-error" class="error" role="alert" hidden></div>
+        <div class="setup-actions"><button id="connect" type="submit">Connect</button><span id="login-status" role="status"></span></div>
+      </form>
+      <p class="detail">This grants access to the host's dashboard, settings, and rechecks. This browser stays paired for 30 days unless the host resets its key.</p>
+    </section>
+  </main>
+</body>
+</html>

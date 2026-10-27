@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">PaP ascending arrow</title>
+  <defs>
+    <linearGradient id="tile" x2="0" y2="1">
+      <stop stop-color="#172a3d"/>
+      <stop offset="1" stop-color="#102233"/>
+    </linearGradient>
+  </defs>
+  <rect x="1" y="1" width="62" height="62" rx="18" fill="url(#tile)" stroke="#7cc7ff" stroke-opacity=".16"/>
+  <text x="29" y="28" transform="rotate(-45 29 28)" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" letter-spacing=".4" fill="#7cc7ff">PaP</text>
+  <path d="M18 49 47 20m-11 2 11-2-2 11" fill="none" stroke="#7cc7ff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

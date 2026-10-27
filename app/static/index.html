@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0b1220">
+  <link rel="icon" type="image/svg+xml" href="/static/logo.svg">
+  <title>Ping_A_Friend</title><link rel="stylesheet" href="/static/style.css">
+  <script src="/static/privacy.js" defer></script>
+  <script src="/static/history.js" defer></script>
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <main>
+    <header><div class="brand"><span class="mark" aria-hidden="true">↗</span><div><p class="eyebrow">A LITTLE PEACE OF MIND</p><h1>Ping_A_Friend<span class="dot">.</span></h1></div></div><div class="identity"><span class="local">LOCAL OBSERVER</span><p id="username">Connecting…</p><button id="sign-out" type="button" hidden>Disconnect this browser</button></div></header>
+    <section class="intro"><div><h2>Keep an eye on the connection.</h2><p>Your devices, organized your way. Small batches of checks. Clear signals when something needs a look.</p></div><span class="phase">Local monitoring dashboard</span></section>
+    <div id="error" class="error" role="alert" hidden></div>
+    <div class="settings-bar"><div><p id="setup-hint">Your monitoring settings live on this computer.</p><p id="privacy-hint">Device IP addresses hidden · External paths and hostnames stay visible.</p></div><div class="privacy-actions"><button id="toggle-addresses" type="button" aria-pressed="false">Show IP addresses</button><button id="open-setup" type="button" hidden>Settings</button></div></div>
+    <section id="setup-panel" class="setup-panel" aria-labelledby="setup-title" hidden>
+      <p class="eyebrow">YOUR FIRST CONNECTION</p><h2 id="setup-title">Set up your monitoring</h2>
+      <p>Create groups for basic checks, IoT devices, or networks you can already reach. Add as many devices as you need; checks run in small batches.</p>
+      <form id="setup-form">
+        <div class="grid"><label>Your local display name<input id="setup-user" required maxlength="64" autocomplete="nickname"><small>This names your local installation.</small></label><label>Devices tested at once<select id="setup-batch"><option value="2">2 at a time (default)</option><option value="3">3 at a time</option><option value="4">4 at a time</option><option value="5">5 at a time</option></select><small>Each batch finishes before the next starts, across all groups.</small></label></div>
+        <div id="setup-groups"></div><button id="add-group" type="button">+ Add group</button>
+        <p class="detail">Find each device’s address in its network settings or your router’s connected-device list. Ping works for most devices. Choose TCP only for a port you know accepts connections.</p>
+        <p class="detail">Internet path checks are optional for each group. Your existing LAN/VPN routes provide connectivity; this app does not set up networking. Removing a device or group stops its checks after saving; stored history is retained.</p>
+        <div id="setup-error" class="error" role="alert" hidden></div>
+        <div class="setup-actions"><button id="save-setup" type="submit">Save and start monitoring</button><button id="close-setup" type="button">Set up later</button><span id="setup-result" role="status"></span></div>
+      </form>
+      <details id="owner-access" hidden><summary>Pair another browser</summary><p class="detail">Pairing grants full owner access to this installation. Keep the key and links private.</p><button id="show-pairing" type="button">Show private pairing details</button><pre id="pairing-details" hidden></pre></details>
+    </section>
+    <div class="toolbar"><span id="freshness" aria-live="polite">Waiting for the observer</span><span id="cadence">90-second incident confirmation</span></div>
+    <div class="group-filter"><label for="group-filter">Show group</label><select id="group-filter"><option value="">All groups</option></select></div>
+    <section id="peers" aria-label="Test groups"><p class="empty">Loading your groups…</p></section>
+    <section class="activity"><div><p class="eyebrow">AVAILABILITY OVER TIME</p><h2>Monthly summary</h2></div>
+      <label>Month (UTC)<input id="report-month" type="month"></label>
+      <p class="detail">Available time includes partial availability. Unknown time includes periods before monitoring started or after measurements expired. Device incidents count confirmed failures once per occurrence.</p>
+      <div id="monthly-report" class="grid" aria-live="polite"></div>
+    </section>
+    <section class="activity"><details id="notification-settings"><summary>Notifications &amp; integrations</summary>
+      <p>Send your own group alerts through Discord, Slack, Telegram, or Twilio SMS. Friend sharing and alerts when this host loses internet require a separate sharing service, which is not connected yet.</p>
+      <form id="notification-form">
+        <label>Provider<select id="notify-provider"><option value="discord">Discord</option><option value="slack">Slack</option><option value="telegram">Telegram</option><option value="twilio">Twilio SMS</option></select></label>
+        <p id="notify-help" class="detail"></p>
+        <label class="check-label"><input id="notify-enabled" type="checkbox">Enable this provider for my notifications</label>
+        <div class="grid">
+          <label><span id="notify-secret-label">Incoming webhook URL</span><input id="notify-secret" type="password" autocomplete="new-password" maxlength="2048"><small>Test entered values before saving. Leave blank to use a saved value.</small></label>
+          <label id="notify-address-field">Recipient / chat ID<input id="notify-address" autocomplete="off" maxlength="100" placeholder="Leave blank to keep saved value"></label>
+          <label id="notify-account-field">Twilio account SID<input id="notify-account" type="password" autocomplete="new-password" maxlength="100" placeholder="Leave blank to keep saved value"></label>
+          <label id="notify-limit-field">Daily SMS request limit (UTC)<input id="notify-limit" type="number" min="1" max="1000" value="20"><small>Counts API attempts, including tests. This is not a currency spending cap; long SMS messages can cost multiple segments.</small></label>
+          <label id="notify-sender-field">Twilio sending number<input id="notify-sender" type="password" autocomplete="new-password" maxlength="100" placeholder="+ and country code; blank keeps saved value"></label>
+        </div>
+        <fieldset><legend>Groups to notify about</legend><p class="detail">Selecting none includes all owned local groups, including groups added later.</p><div id="notify-groups"></div></fieldset>
+        <label class="check-label"><input id="notify-recovery" type="checkbox">Also notify when everything recovers</label>
+        <label class="check-label"><input id="notify-monthly" type="checkbox">Send a monthly summary for each group</label>
+        <p class="detail">Yellow/red alerts follow confirmed device failures. Automatic alerts have a five-minute cooldown per status, group, and provider. Twilio SMS incurs charges; only enter a number you control or have permission to notify. LAN HTTP does not encrypt entered credentials; use the host browser or HTTPS.</p>
+        <div class="setup-actions"><button type="submit">Save notification settings</button><button id="notify-test" type="button">Send test notification</button><span id="notify-result" role="status"></span></div>
+      </form>
+      <h3>Recent delivery attempts</h3><p class="detail">Latest attempt shown. Select a month or preview to expand into a six-entry scroll box. History is kept for 60 days.</p><div id="delivery-history"></div>
+    </details></section>
+    <section class="activity"><div><p class="eyebrow">WHEN SOMETHING NEEDS ATTENTION</p><h2>Local notifications</h2><p class="detail">Latest two shown. Select a month or preview to expand into a six-entry scroll box. History is kept for 60 days.</p></div><div id="notifications"><p class="empty">No confirmed incidents yet.</p></div></section>
+    <footer><p>Measurements come from this computer or container. Device reachability is evidence, not proof of a whole-network outage.</p><p>Checks use the routes available on this computer. Groups organize tests; they do not establish VPNs or connections to other locations.</p></footer>
+  </main>
+</body>
+</html>

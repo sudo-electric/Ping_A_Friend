@@ -1,0 +1,57 @@
+{
+  "local_user": "owner",
+  "interval_seconds": 15,
+  "timeout_seconds": 3,
+  "confirmation_seconds": 90,
+  "retention_days": 30,
+  "peers": [
+    {
+      "id": "home",
+      "name": "Basic tests",
+      "owner": "owner",
+      "transport": "local",
+      "grants": [],
+      "targets": [
+        {
+          "id": "device-1",
+          "name": "Always-on device 1",
+          "kind": "device",
+          "host": "192.0.2.10",
+          "method": "icmp",
+          "enabled": false,
+          "delayed_ms": 100
+        },
+        {
+          "id": "device-2",
+          "name": "Always-on device 2",
+          "kind": "device",
+          "host": "192.0.2.11",
+          "method": "icmp",
+          "enabled": false,
+          "delayed_ms": 100
+        },
+        {
+          "id": "cloudflare-path",
+          "name": "External path \u00b7 Cloudflare",
+          "kind": "external",
+          "host": "1.1.1.1",
+          "method": "tcp",
+          "port": 443,
+          "delayed_ms": 250,
+          "enabled": false
+        },
+        {
+          "id": "google-path",
+          "name": "External path \u00b7 Google DNS",
+          "kind": "external",
+          "host": "8.8.8.8",
+          "method": "tcp",
+          "port": 53,
+          "delayed_ms": 250,
+          "enabled": false
+        }
+      ]
+    }
+  ],
+  "batch_size": 2
+}
