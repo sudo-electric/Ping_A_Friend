@@ -40,6 +40,8 @@ class Store:
         self.db.commit()
         from .presence import initialize
         initialize(self.db)
+        from .delay_history import initialize as initialize_delays
+        initialize_delays(self.db)
         Path(path).chmod(0o600)
 
     def reset_pending(self, now):
@@ -49,6 +51,8 @@ class Store:
 
     def record(self, peer, target, result, now, confirmation, max_gap):
         with self.db:
+            from .delay_history import record as record_delay
+            record_delay(self.db, peer, target, result, now)
             self.db.execute("INSERT INTO samples(peer,target,checked_at,result) VALUES(?,?,?,?)",
                             (peer.id, target.id, now, json.dumps(result.to_dict())))
             incident = self.db.execute("SELECT * FROM incidents WHERE peer=? AND target=? AND resolved_at IS NULL",
@@ -102,6 +106,7 @@ class Store:
             # reference them, independently of the shorter raw-sample retention.
             self.db.execute("DELETE FROM incidents WHERE resolved_at < ? AND NOT EXISTS (SELECT 1 FROM notifications WHERE incident=incidents.id)", (cutoff,))
             if summary_cutoff is not None:
+                self.db.execute('DELETE FROM delay_events WHERE checked_at < ?', (summary_cutoff,))
                 self.db.execute('DELETE FROM availability WHERE expires < ?', (summary_cutoff,))
                 self.db.execute('DELETE FROM device_events WHERE confirmed < ?', (summary_cutoff,))
                 self.db.execute('DELETE FROM status_events WHERE created < ?', (summary_cutoff,))

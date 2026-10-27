@@ -94,7 +94,11 @@ def report(store, group_id, month, now):
         seconds['unknown'] += max(0, stop - start - sum(seconds.values()))
     devices = [dict(r) for r in store.db.execute('''SELECT target_id, MAX(name) AS name, COUNT(*) AS incidents
         FROM device_events WHERE group_id=? AND confirmed>=? AND confirmed<? AND confirmed<=? GROUP BY target_id''', (group_id, start, end, now))]
-    return {'month': month, 'timezone': 'UTC', 'group_id': group_id, 'seconds': seconds,
+    from .delay_history import report as delay_report
+    # Include an observation exactly at now, but never one at next month's boundary.
+    import math
+    delays = delay_report(store.db, group_id, start, min(end, math.nextafter(now, math.inf)))
+    return {'delays': delays, 'month': month, 'timezone': 'UTC', 'group_id': group_id, 'seconds': seconds,
             'available_seconds': seconds['green'] + seconds['yellow'],
             'available_days': (seconds['green'] + seconds['yellow']) / 86400,
             'device_availability_seconds': weighted, 'device_incidents': sum(d['incidents'] for d in devices),

@@ -74,3 +74,11 @@ loopback-only, 60 seconds; installation-specific cookies preserve legacy support
 Use private per-user data paths for frozen builds and retain source path support.
 The Linux one-file runtime test was declined in this session; do not repeat it
 without fresh authorization or claim the final binary was run end-to-end.
+
+Delayed-response history: log each enabled device check reported delayed, including
+name/ID, time, ICMP/TCP method/port, measured latency and the then-current threshold.
+Retain 400 days separately from raw samples. Keep delayed checks reachable and do
+not treat them as confirmed outages or trigger immediate provider alerts for them.
+Monthly reports show per-device counts/mean/worst and a bounded scrolling preview;
+full-month totals must not be capped by that preview. Do not invent pre-upgrade
+records. Preserve logs in v2 migration exports and accept legacy v1 exports.

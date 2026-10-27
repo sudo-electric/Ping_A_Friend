@@ -131,3 +131,8 @@ already contains data you want to preserve.
 
 Existing executables must be replaced with the new build to obtain these controls.
 A browser refresh cannot update an older bundled application.
+
+Version 0.2.2 transfer files also include the 400-day delayed-response log and its
+logging start marker. The transfer payload is version 2; version 1 exports from
+0.2.1 remain accepted, with no invented earlier delay records. Older receiving
+builds must be updated before they can read a version 2 export.

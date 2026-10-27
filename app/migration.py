@@ -14,7 +14,7 @@ from .notify import Destination
 
 MAX_TRANSFER_BYTES = 32 * 1024 * 1024
 TABLES = ('samples', 'incidents', 'notifications', 'availability', 'device_events',
-          'status_events', 'alert_state', 'sms_usage', 'deliveries')
+          'status_events', 'alert_state', 'sms_usage', 'deliveries', 'delay_events', 'delay_log_info')
 
 
 def cipher(key, salt):
@@ -27,7 +27,7 @@ def cipher(key, salt):
 
 def export_data(monitor, notifier, key):
     db = monitor.store.db
-    payload = {'version': 1, 'settings': monitor.settings.model_dump(),
+    payload = {'version': 2, 'settings': monitor.settings.model_dump(),
                'providers': [d.model_dump() for d in notifier.destinations().values()],
                'tables': {table: [dict(r) for r in db.execute(f'SELECT * FROM {table}')]
                           for table in TABLES}}
@@ -51,7 +51,11 @@ def read_transfer(archive, key):
         if len(salt) != 16:
             raise ValueError()
         value = json.loads(cipher(key, salt).decrypt(envelope['data'].encode()))
-        if value['version'] != 1 or set(value['tables']) != set(TABLES):
+        if value['version'] == 1:
+            if set(value['tables']) != set(TABLES) - {'delay_events','delay_log_info'}:
+                raise ValueError()
+            value['tables'].update(delay_events=[], delay_log_info=[])
+        elif value['version'] != 2 or set(value['tables']) != set(TABLES):
             raise ValueError()
         settings = Settings.model_validate(value['settings'])
         providers = [Destination.model_validate(p) for p in value['providers']]
@@ -69,7 +73,7 @@ def is_fresh(monitor, notifier):
     return (not any(t.enabled for p in monitor.settings.peers for t in p.targets)
             and not notifier.destinations()
             and not any(monitor.store.db.execute(f'SELECT 1 FROM {t} LIMIT 1').fetchone()
-                        for t in ('incidents', 'notifications', 'deliveries'))
+                        for t in ('incidents', 'notifications', 'deliveries', 'delay_events'))
             and not any(json.loads(r[0]).get('status') != 'unconfigured'
                         for r in monitor.store.db.execute('SELECT result FROM samples')))
 

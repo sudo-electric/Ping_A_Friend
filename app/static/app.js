@@ -261,9 +261,23 @@ $('notify-test').addEventListener('click', async () => {
   } catch (error) { $('notify-result').textContent = error.message; }
   finally { $('notify-test').disabled = false; $('notify-test').textContent = 'Send test notification'; }
 });
+function delaySummary(group) {
+  const d = group.delays;
+  if (!d) return '';
+  const totals = `<p><strong>${esc(d.count)} delayed check(s)</strong>${d.worst_ms == null ? '' : ` · Worst ${esc(d.worst_ms)} ms`}</p>`;
+  const devices = d.devices.map(t => `<p class="detail">${privateText(t.name)} · ${t.method === 'tcp' ? 'TCP connect' : 'ICMP round-trip'}: ${esc(t.count)} delayed check(s) · Average ${esc(t.average_ms)} ms · Worst ${esc(t.worst_ms)} ms</p>`).join('');
+  const coverage = `<p class="detail">${d.logging_started_at == null ? 'Delay logging starts with the next enabled device check.' : `Delay logging began ${esc(time(d.logging_started_at))}. Earlier readings are not reconstructed.`} Counts are recorded slow checks, not outages or continuous delay duration. Delayed devices still count as reachable.</p>`;
+  const log = d.recent.map(t => `<div class="delay-entry"><strong>${privateText(t.name)}</strong><p class="detail">${esc(time(t.checked_at))} · ${t.method === 'tcp' ? `TCP connect :${esc(t.port)}` : 'ICMP round-trip'} · ${esc(t.latency_ms)} ms · Threshold ${esc(t.threshold_ms)} ms</p></div>`).join('');
+  return totals + devices + coverage + (log ? `<details data-delay-group="${esc(group.group_id)}"><summary>Delayed readings · latest ${esc(d.recent.length)} of ${esc(d.count)}</summary><div class="delay-log" tabindex="0" role="region" aria-label="Delayed device readings">${log}</div></details>` : '');
+}
 function renderMonthlyReport() {
   if (!latestReport) return;
-    $('monthly-report').innerHTML = latestReport.groups.map(g => `<article class="notice"><h3>${privateText(g.name)}</h3><p><strong>Available ${g.available_days.toFixed(2)} days</strong></p><p class="detail">Fully reachable ${(g.seconds.green / 3600).toFixed(2)}h · Partial ${(g.seconds.yellow / 3600).toFixed(2)}h · Unreachable ${(g.seconds.red / 3600).toFixed(2)}h · Unknown ${(g.seconds.unknown / 3600).toFixed(2)}h</p><p>${g.device_incidents} confirmed device incident(s)</p>${g.devices.map(d => `<p class="detail">${privateText(d.name)}: ${d.incidents}</p>`).join('')}</article>`).join('');
+  const open = new Map([...document.querySelectorAll('#monthly-report details[data-delay-group]')].map(el => [el.dataset.delayGroup, {open:el.open, scroll:el.querySelector('.delay-log').scrollTop}]));
+  $('monthly-report').innerHTML = latestReport.groups.map(g => `<article class="notice"><h3>${privateText(g.name)}</h3><p><strong>Available ${g.available_days.toFixed(2)} days</strong></p><p class="detail">Fully reachable ${(g.seconds.green / 3600).toFixed(2)}h · Partial ${(g.seconds.yellow / 3600).toFixed(2)}h · Unreachable ${(g.seconds.red / 3600).toFixed(2)}h · Unknown ${(g.seconds.unknown / 3600).toFixed(2)}h</p><p>${g.device_incidents} confirmed device incident(s)</p>${g.devices.map(d => `<p class="detail">${privateText(d.name)}: ${d.incidents}</p>`).join('')}${delaySummary(g)}</article>`).join('');
+  for (const el of document.querySelectorAll('#monthly-report details[data-delay-group]')) {
+    const previous = open.get(el.dataset.delayGroup);
+    if (previous) { el.open = previous.open; el.querySelector('.delay-log').scrollTop = previous.scroll; }
+  }
 }
 async function loadMonthlyReport() {
   try {

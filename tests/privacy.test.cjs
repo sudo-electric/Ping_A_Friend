@@ -122,3 +122,19 @@ test('pairing and transfer inputs clear when a page is restored or hidden', () =
     assert.equal(element('transfer-confirm').checked,false);
   }
 });
+
+test('monthly delay log preserves IP screening and identifies slow checks as reachable', () => {
+  const {context} = dashboard();
+  context.delayFixture = {group_id:'home',delays:{count:1,worst_ms:1043.33,logging_started_at:1,
+    devices:[{name:'Camera 192.0.2.1',method:'tcp',count:1,average_ms:1043.33,worst_ms:1043.33}],
+    recent:[{name:'Camera 192.0.2.1',method:'tcp',port:443,checked_at:2,latency_ms:1043.33,threshold_ms:100}]}};
+  let html = vm.runInContext('delaySummary(delayFixture)', context);
+  assert.ok(!html.includes('192.0.2.1'));
+  assert.ok(html.includes('1043.33') && html.includes('Threshold 100 ms'));
+  assert.ok(html.includes('TCP connect') && html.includes('still count as reachable'));
+  assert.ok(html.includes('latest 1 of 1'));
+  assert.ok(html.includes('Earlier readings are not reconstructed'));
+  vm.runInContext('setAddressesShown(true)', context);
+  html = vm.runInContext('delaySummary(delayFixture)', context);
+  assert.ok(html.includes('192.0.2.1'));
+});

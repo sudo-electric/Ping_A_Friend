@@ -165,3 +165,26 @@ Both people will keep the full application. A separate service still needs:
 These are remaining implementation steps, not deployed or enabled capabilities.
 The user has authorized development; actual provider account setup, credential
 entry, message destinations, and service deployment still need concrete choices.
+
+## Delayed-response history (0.2.2)
+
+Each enabled device check marked delayed is recorded separately from confirmed
+reachability incidents. The record captures name/ID, method/port, check time, measured
+latency, and the threshold in effect then. Logs retain 400 days independently of
+raw samples. Logging starts with this upgrade; older readings are not reconstructed.
+Delayed devices remain reachable and do not create new immediate provider alerts.
+
+UTC monthly reports show per-device slow-check counts, mean of delayed readings,
+worst latency, and the latest 50 readings in a collapsed scroll box. Totals include
+all retained readings in the selected month, not just the preview. Counts are
+observations, so repeated/manual checks can add records; they are not counts of
+distinct incidents or a measurement of continuous delay duration. The logging start
+time is shown to explain partial coverage. Removed/renamed devices retain their
+recorded identifiers and names; threshold changes do not rewrite prior events.
+Optional provider monthly summaries include the total slow checks and worst delay
+for the group; per-device detail stays in the dashboard. Reports already sent are
+not resent retroactively. External-path delays are not included in device totals.
+
+Encrypted migration exports include these logs. New builds accept older 0.2.1
+transfer files, which have no delayed-response log; 0.2.1 builds cannot restore
+the newer transfer payload version. Upgrade the receiving build first.

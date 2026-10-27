@@ -241,6 +241,12 @@ class Notifier:
                             message = (f"{group.name} · {month} (UTC): available {summary['available_days']:.2f} days; "
                                        f"partial {summary['seconds']['yellow']/3600:.2f}h; unreachable {summary['seconds']['red']/3600:.2f}h; "
                                        f"unknown {summary['seconds']['unknown']/3600:.2f}h; device incidents {summary['device_incidents']}.")
+                            delays = summary['delays']
+                            message += f" Delayed checks {delays['count']}"
+                            if delays['worst_ms'] is not None:
+                                message += f"; worst {delays['worst_ms']:.2f} ms"
+                            message += '. Delays still count as reachable.'
+                            message += ' Delay totals cover recorded checks since delay logging began.'
                             self.enqueue(d.provider, f'month:{group.id}:{month}', message, group.id)
 
     async def deliver_once(self):

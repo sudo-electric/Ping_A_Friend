@@ -199,3 +199,7 @@ footer p { margin: 4px 0; }
 
 #owner-access { margin-top: 24px; }
 #pairing-details { white-space: pre-wrap; overflow-wrap: anywhere; background: var(--paper); padding: 15px; border-radius: 8px; }
+
+.delay-log { max-height: 24rem; overflow-y: auto; overscroll-behavior-y: contain; scrollbar-width: thin; margin-top: 12px; }
+.delay-entry { padding: 10px 0; border-bottom: 1px solid #7cc7ff18; overflow-wrap: anywhere; }
+.delay-entry p { margin-bottom: 0; }

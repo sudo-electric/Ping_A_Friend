@@ -485,3 +485,36 @@ members with zero findings; final dashboard assets match source, and ZIP integri
 and executable checksum were verified. Compiled-server execution remains untested
 under the earlier declined runtime-test boundary. Source changes are local and
 have not been committed or pushed for this increment.
+
+
+## October 27: durable delayed-response log and monthly reporting
+
+The user requests logging intermittent slow responses (such as the camera TCP
+connect delay) for any monitored device and including them in monthly reports.
+Version 0.2.2 records every enabled device check reported delayed in a separate
+SQLite history with name/ID, timestamp, ICMP/TCP method/port, measured milliseconds,
+and the threshold in effect. No additional device address is stored. External-path
+checks and disabled placeholders are excluded. Records last 400 days, independent
+of raw-sample pruning. Existing samples are not backfilled; report text identifies
+the logging start time. Counts are delayed observations, not incident episodes or
+continuous duration. Delayed devices remain reachable; no new immediate notification
+is triggered by this feature.
+
+UTC monthly reports include device counts, mean delayed reading, worst latency, and
+a collapsed scrolling preview of the latest 50 readings, with full-month totals
+uncapped by the preview. Expansion/scroll position survive background report polling.
+Names use existing privacy screening. Optional provider monthly messages add group
+delay counts and worst latency, with partial-coverage wording. Previously sent
+monthly summaries are not resent. Encrypted export payload v2 preserves the new
+logs and start marker; v1/0.2.1 exports remain readable by the new build. New v2
+exports require an updated destination build. No live credentials/data are used
+in tests, and no live installation has been migrated or restarted by the agent.
+
+Verification: 106 Python tests and 15 JavaScript cases passed, covering separate
+latency/reachability semantics, original threshold/name snapshots, disabled/external
+exclusion, raw-sample pruning and restart, 400-day pruning, UTC boundaries/future
+exclusion, uncapped totals with a bounded preview, provider monthly summary dedup,
+v2/legacy migration, pre-upgrade database behavior, and IP privacy in the new view.
+The 0.2.2 Linux build passed its privacy audit (702 members, no findings); no live
+provider messages were sent and the compiled server was not launched. The internal
+data-handling reference now documents this additional stored/transmitted summary.
