@@ -245,3 +245,8 @@ Implementation references: [FastAPI lifespan](https://fastapi.tiangolo.com/advan
 See [single-file distribution](docs/DISTRIBUTION.md) and the
 [security sweep report](docs/SECURITY_REVIEW.md) for the Linux test build,
 private-data separation, credential migration, and remaining limitations.
+
+## Security and data handling
+
+See [SECURITY.md](SECURITY.md) for protections, known limits, and private vulnerability
+reporting, and [data handling](docs/DATA_HANDLING.md) for what is stored and sent.

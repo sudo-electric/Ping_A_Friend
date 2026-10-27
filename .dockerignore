@@ -28,3 +28,6 @@ tools
 .aws
 .codex
 .agents
+
+# Encrypted installation exports still contain private data.
+*.paf

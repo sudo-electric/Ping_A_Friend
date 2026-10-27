@@ -518,3 +518,24 @@ v2/legacy migration, pre-upgrade database behavior, and IP privacy in the new vi
 The 0.2.2 Linux build passed its privacy audit (702 members, no findings); no live
 provider messages were sent and the compiled server was not launched. The internal
 data-handling reference now documents this additional stored/transmitted summary.
+
+## October 27: security documentation and GitHub protections
+
+The user explicitly selected both documenting application security and enabling
+repository security features. Added a root SECURITY.md, private-reporting link,
+README cross-links, a GitHub settings reference, and weekly pip/Docker Dependabot
+configuration. Existing runtime protections remain unchanged. GitHub now reports
+this repository as public; visibility was not changed by this work. Enabled and
+verified Dependabot alerts/security updates, secret scanning/push protection,
+private vulnerability reporting, CodeQL default setup, and an active ruleset
+blocking force pushes/deletion of the default branch while preserving direct
+ordinary pushes. Existing read-only default Actions token permissions/no PR
+approval were preserved. Initial CodeQL scan status must be distinguished from
+configuration enablement; do not claim a clean scan until results are available.
+No account MFA, collaborator permissions, provider secrets, or paid add-ons changed.
+Initial CodeQL setup completed successfully. Its 23 path-injection findings trace
+to intentional operator-controlled CLI/environment profile paths (not HTTP input),
+and four JS code-injection findings evaluate fixed repository files inside tests.
+Reviewed source/SARIF and recorded individual false-positive triage comments rather
+than disabling queries or excluding directories. Added *.paf Git/Docker exclusions
+so encrypted migration exports cannot be accidentally added by ordinary Git use.
