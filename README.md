@@ -233,12 +233,6 @@ Tests use temporary SQLite databases, a controlled clock, fake transports, and r
 
 A realistic next step is one local observer at each home, with explicitly authorized and authenticated exchange of **health summaries** over an agreed private/outbound transport. Twingate may help provide a private route, but a route alone does not implement application permissions or monitor two remote devices. Before enabling remote use, add authenticated users/agents, owner-controlled scoped grants, revocation, replay protection, stale-heartbeat handling, and TLS. Remote observations must retain their origin; a missing heartbeat must not be labeled a proven remote LAN outage.
 
-## Editor choice
-
-**VS Code is the best general choice for this app**: it fits Python, web UI, tests, and Docker in one workspace. Positron is a good alternative when your work centers on Python/R data science and interactive analysis. This project uses ordinary files and works in either editor.
-
-Open the extracted `ping_a_friend` folder as your workspace. Included VS Code settings select `.venv`, enable pytest discovery, and provide a loopback-only debugger launch. Install the suggested Python extensions and the development requirements before running tests in the editor. You can initialize version control with `git init`; the archive excludes live configuration, databases, and environment folders.
-
 ## Requirement sources
 
 Based on the attached the original network requirements document, with the subsequent independent-dashboard sharing requirement and the requested name **Ping_A_Friend**. The PDF's global database idea is implemented as one local SQLite store for this installation; no global cross-user cloud database or implicit sharing is claimed.
