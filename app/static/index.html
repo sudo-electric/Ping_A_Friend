@@ -26,6 +26,17 @@
         <div id="setup-error" class="error" role="alert" hidden></div>
         <div class="setup-actions"><button id="save-setup" type="submit">Save and start monitoring</button><button id="close-setup" type="button">Set up later</button><span id="setup-result" role="status"></span></div>
       </form>
+      <details id="connect-existing"><summary>Connect to an existing host</summary>
+        <p class="detail">Use the pairing link from the original host’s Settings. This opens its dashboard; your local settings and data stay here. Available before monitoring setup.</p>
+        <form id="pair-existing-form"><label>Host pairing link<input id="existing-pairing-link" type="password" autocomplete="off" required maxlength="2048" placeholder="Paste the complete pairing link"></label><button type="submit">Open host dashboard</button><p id="existing-pairing-error" class="error" role="alert" hidden></p></form>
+      </details>
+      <details id="move-installation"><summary>Move an installation to this computer</summary>
+        <p class="detail">On the original host, download an encrypted transfer file and keep its pairing key. Stop that host before restoring here. Restore requires a fresh installation and transfers saved devices, history, and notification settings. Notification providers start disabled here; this host keeps its own pairing key. This is a one-time copy, not synchronization.</p>
+        <button id="export-installation" type="button">Download encrypted transfer file</button>
+        <p class="detail">Export uses this host’s pairing key. LAN mode is required for export. Keep the file and key private; together they unlock all transferred data and provider credentials.</p>
+        <form id="import-installation-form"><label>Transfer file<input id="transfer-file" type="file" accept=".paf" required></label><label>Original host’s pairing key<input id="transfer-key" type="password" autocomplete="off" required minlength="16" maxlength="256"></label><label class="check-label"><input id="transfer-confirm" type="checkbox" required>I have stopped the original host and want this fresh installation to host its data.</label><button id="import-installation" type="submit">Restore on this computer</button></form>
+        <p id="transfer-result" role="status"></p>
+      </details>
       <details id="owner-access" hidden><summary>Pair another browser</summary><p class="detail">Pairing grants full owner access to this installation. Keep the key and links private.</p><button id="show-pairing" type="button">Show private pairing details</button><pre id="pairing-details" hidden></pre></details>
     </section>
     <div class="toolbar"><span id="freshness" aria-live="polite">Waiting for the observer</span><span id="cadence">90-second incident confirmation</span></div>

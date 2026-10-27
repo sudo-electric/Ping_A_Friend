@@ -41,7 +41,7 @@ function dashboard() {
       setAttribute(name,value) {this.attrs[name] = value;}});
     return elements.get(id);
   }
-  const context = vm.createContext({URL, console, Date, document:{getElementById:element,
+  const context = vm.createContext({URL, URLSearchParams, console, Date, document:{getElementById:element,
     querySelectorAll:selector => selector === 'input[name="host"]' ? hosts : [],
     body:{classList:{remove(){},add(){}}}},
     window:{addEventListener:(event, fn) => {const previous=events[event]; events[event] = () => {if(previous) previous(); fn();};}},
@@ -97,4 +97,28 @@ test('external path addresses stay visible while monitored device addresses are 
   assert.equal(context.addressPrivacy.shown, false);
   const afterHide = vm.runInContext("targetCard({name:'Google DNS',host:'8.8.8.8',kind:'external',status:'healthy',method:'tcp',port:53})", context);
   assert.ok(afterHide.includes('8.8.8.8:53'));
+});
+
+test('existing host pairing accepts only complete HTTP(S) login links and does not rewrite hosts', () => {
+  const {context} = dashboard();
+  for (const link of ['http://nas.local:8000/login#key=abcd', 'https://192.0.2.1/login#key=abcd']) {
+    context.link = link;
+    assert.equal(vm.runInContext('existingHostLink(link)', context), link);
+  }
+  for (const link of ['javascript:alert(1)', 'file:///login#key=abcd', 'https://host/login',
+      'https://user:password@host/login#key=abcd', 'https://host/login?key=abcd#key=abcd',
+      'https://host/login#key=one&key=two', 'https://host/other#key=abcd']) {
+    context.link = link;
+    assert.throws(() => vm.runInContext('existingHostLink(link)', context));
+  }
+});
+test('pairing and transfer inputs clear when a page is restored or hidden', () => {
+  const {element,events} = dashboard();
+  for (const event of ['pageshow','pagehide']) {
+    for (const id of ['existing-pairing-link','transfer-key','transfer-file']) element(id).value='private';
+    element('transfer-confirm').checked=true;
+    events[event]();
+    for (const id of ['existing-pairing-link','transfer-key','transfer-file']) assert.equal(element(id).value,'');
+    assert.equal(element('transfer-confirm').checked,false);
+  }
 });

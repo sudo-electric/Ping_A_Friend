@@ -91,3 +91,43 @@ Outputs include the single executable, a ZIP containing only that executable,
 a SHA-256 checksum, and a privacy audit report. Checksums detect corruption; they
 do not substitute for publisher signing. Email attachment size/type restrictions
 vary, so a provider may still require a download link for the ZIP.
+
+## Connect another computer or move the installation (0.2.1)
+
+Both choices are in Settings before monitoring setup:
+
+- **Connect to an existing host:** paste that host’s complete pairing link. The
+  browser opens the original dashboard; data and checks stay on the original host.
+  No second installation is necessary just to open a pairing link in a browser.
+- **Move an installation to this computer:** on the original host, download its
+  encrypted `.paf` transfer file and retain that host’s pairing key. Stop the
+  original host, then open this section on a fresh destination installation,
+  select the file, enter the original key, and confirm restoration.
+
+A key alone cannot locate or copy another computer’s data. This is an explicit
+file transfer, not discovery or ongoing synchronization. The file contains device
+settings, retained measurements/incident/report history, delivery history, and
+provider credentials, encrypted with a key derived from the exporting host’s
+pairing key using PBKDF2-SHA256 (600,000 iterations and a random salt) and Fernet.
+Keep both private. Anyone with the file and its matching key can unlock its data;
+resetting the original pairing key does not re-encrypt earlier downloaded files.
+Save the original key before resetting it if older files must remain recoverable.
+
+Restoration is allowed only on an unconfigured destination without existing
+monitoring history or provider settings. Disabled first-run placeholder samples
+are allowed. The new host keeps its own owner and credential-encryption keys;
+provider credentials are re-encrypted locally, all providers start disabled, and
+pending/interrupted delivery attempts are cancelled rather than replayed. Review
+Settings before enabling notifications. History gaps remain unobserved time, and
+pending failure confirmation restarts rather than counting the transfer interval.
+The original computer is not remotely stopped, erased, or changed by export.
+
+Transfer files are limited to 32 MB; oversized histories return an error instead
+of a partial transfer. Export requires LAN mode so there is a pairing key. Imported
+addresses must be reachable from the new host’s existing network/VPN routes.
+Download and unlock locally or use HTTPS: ordinary LAN HTTP does not protect an
+entered transfer key on the network. Use a fresh data profile if the destination
+already contains data you want to preserve.
+
+Existing executables must be replaced with the new build to obtain these controls.
+A browser refresh cannot update an older bundled application.

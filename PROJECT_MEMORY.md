@@ -446,3 +446,42 @@ Default LAN HTTP remains unencrypted; require trusted LAN or configured TLS. A
 compromised OS account/root or copies of both encryption key and database can
 recover credentials. Git history/remotes were not audited because this workspace
 has no usable Git repository metadata. No commit/push or public deployment occurred.
+
+
+## October 27: connect before setup and optional host migration
+
+The user requires two explicit choices: connect a browser to the existing host,
+or move an installation to a new computer. Monitoring setup must not gate either
+choice. Previously Settings could reveal this host’s link but could not accept a
+different host’s link; the API already allowed revealing links before setup.
+Settings now accepts a complete HTTP(S) /login#key link and navigates the browser
+to that original host, without saving or relaying the key through the local backend.
+
+Version 0.2.1 adds an encrypted file export/restore flow in Settings, unlocked with
+the exporting host’s owner pairing key. A key alone does not discover/copy data.
+The owner explicitly downloads a file, stops the old host, and confirms restore
+on a fresh destination. Export preserves source data. Transfer includes settings,
+retained measurements, incidents, summaries, and provider settings/history; it
+excludes installation keys. The destination retains its own access/vault keys,
+re-encrypts provider settings, disables providers, cancels queued/interrupted sends,
+and resets pending failure confirmation. Existing configured destinations are
+rejected rather than overwritten. First-run disabled placeholder samples are safe
+to replace. No background synchronization or remote stopping/deleting is implemented.
+32 MB transfer bound; PBKDF2-SHA256/Fernet with random salt; original key changes
+do not change older files. Use local browser/HTTPS when entering the original key.
+
+Twingate was discussed as a named Resource plus future application-side scoped
+sharing. No Twingate administration, embedded agent, friend grants, or network
+configuration was implemented in this increment. Full owner pairing remains full
+owner access. See docs/DISTRIBUTION.md for exact transfer instructions and limits.
+
+Verification: 101 Python tests and 14 JavaScript cases passed. The migration tests
+cover owner-only access before setup, encrypted round-trip, durable restored
+credentials under the destination key, retained measurements, cancelled queued
+messages, wrong-key/tamper rejection, incompatible history, confirmation, and busy
+probe exclusion. No live installation was migrated or provider message sent.
+The 0.2.1 Linux x86_64 executable/ZIP was rebuilt. Privacy audit passed for 701
+members with zero findings; final dashboard assets match source, and ZIP integrity
+and executable checksum were verified. Compiled-server execution remains untested
+under the earlier declined runtime-test boundary. Source changes are local and
+have not been committed or pushed for this increment.

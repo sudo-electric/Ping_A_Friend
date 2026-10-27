@@ -1,6 +1,6 @@
 [project]
 name = "ping-a-friend"
-version = "0.2.0"
+version = "0.2.1"
 description = "Local-first network observation with honest peer transport boundaries"
 requires-python = ">=3.11"
 

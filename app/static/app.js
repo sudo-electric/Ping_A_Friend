@@ -316,3 +316,79 @@ function hidePairingDetails() {
 }
 window.addEventListener('pagehide', hidePairingDetails);
 window.addEventListener('pageshow', hidePairingDetails);
+
+function existingHostLink(value) {
+  const url = new URL(value.trim());
+  const parts = new URLSearchParams(url.hash.slice(1));
+  const key = parts.get('key');
+  if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password ||
+      url.pathname !== '/login' || url.search || !key || key.length > 256 ||
+      [...parts.keys()].some(name => name !== 'key') || parts.getAll('key').length !== 1) {
+    throw new Error('Paste the complete host pairing link from Settings, ending in /login#key=…');
+  }
+  return url.href;
+}
+$('pair-existing-form').addEventListener('submit', event => {
+  event.preventDefault();
+  const input = $('existing-pairing-link');
+  $('existing-pairing-error').hidden = true;
+  try {
+    const url = existingHostLink(input.value);
+    input.value = '';
+    location.assign(url);
+  } catch {
+    $('existing-pairing-error').textContent = 'Use a complete HTTP or HTTPS pairing link from the original host’s Settings.';
+    $('existing-pairing-error').hidden = false;
+  }
+});
+$('export-installation').addEventListener('click', async () => {
+  $('export-installation').disabled = true;
+  $('transfer-result').textContent = 'Preparing encrypted transfer…';
+  try {
+    const response = await fetch('/api/access/export', {method:'POST', headers:{'Content-Type':'application/json'}, body:'{}'});
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(typeof data.detail === 'string' ? data.detail : 'Unable to export installation');
+    }
+    const url = URL.createObjectURL(await response.blob());
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'Ping_A_Friend-transfer.paf';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+    $('transfer-result').textContent = 'Transfer downloaded. Keep the original host’s pairing key to unlock it on the new computer.';
+  } catch (error) { $('transfer-result').textContent = error.message; }
+  finally { $('export-installation').disabled = false; }
+});
+$('import-installation-form').addEventListener('submit', async event => {
+  event.preventDefault();
+  const file = $('transfer-file').files[0];
+  if (!file || !$('transfer-confirm').checked) return;
+  if (file.size > 32 * 1024 * 1024) { $('transfer-result').textContent = 'Transfer file is too large (32 MB maximum).'; return; }
+  $('import-installation').disabled = true;
+  $('transfer-result').textContent = 'Unlocking and restoring…';
+  try {
+    const data = await request('/api/access/import', {method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({archive:await file.text(), key:$('transfer-key').value.trim(), confirm:true})});
+    $('transfer-result').textContent = data.message;
+    $('transfer-key').value = '';
+    $('transfer-file').value = '';
+    $('transfer-confirm').checked = false;
+    await loadSetup();
+    openSetup();
+    await loadNotificationSettings(true);
+    await loadMonthlyReport();
+    await refresh();
+  } catch (error) { $('transfer-result').textContent = error.message; }
+  finally { $('import-installation').disabled = false; }
+});
+function clearTransferInputs() {
+  $('existing-pairing-link').value = '';
+  $('transfer-key').value = '';
+  $('transfer-file').value = '';
+  $('transfer-confirm').checked = false;
+}
+window.addEventListener('pagehide', clearTransferInputs);
+window.addEventListener('pageshow', clearTransferInputs);

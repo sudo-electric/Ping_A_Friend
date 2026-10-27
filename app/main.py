@@ -7,7 +7,7 @@ from urllib.parse import urlsplit
 from uuid import uuid4
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.exceptions import RequestValidationError
 
@@ -22,6 +22,7 @@ from .notify import Notifier, DestinationInput, TestRateLimited
 from .presence import report, month_bounds
 from .paths import private_path
 from . import __version__
+from .migration import export_data, restore_data, MAX_TRANSFER_BYTES
 
 STATIC = Path(__file__).parent / "static"
 
@@ -141,6 +142,52 @@ def create_app(settings=None, db_path=None, transports=None, background=True, se
         suffix = f':{request.url.port}' if request.url.port else ''
         urls = [f'{request.url.scheme}://{address}{suffix}/login#key={key}' for address in local_addresses()]
         return {'key': key, 'links': urls}
+
+    @app.post('/api/access/export', include_in_schema=False)
+    async def export_installation():
+        key = app.state.access.key
+        if not key:
+            raise HTTPException(400, 'Start in LAN mode to export with a pairing key')
+        monitor, notifier = app.state.monitor, app.state.notifier
+        if monitor.lock.locked() or notifier.lock.locked():
+            raise HTTPException(409, 'Checks or notifications are running. Try again shortly.')
+        async with monitor.lock, notifier.lock:
+            try:
+                archive = export_data(monitor, notifier, key)
+            except ValueError as exc:
+                raise HTTPException(422, str(exc)) from None
+        return Response(archive, media_type='application/octet-stream', headers={
+            'Content-Disposition': 'attachment; filename="Ping_A_Friend-transfer.paf"'})
+
+    @app.post('/api/access/import', include_in_schema=False)
+    async def import_installation(request: Request):
+        # Bound the streamed body before JSON decoding, including chunked uploads.
+        body = bytearray()
+        async for chunk in request.stream():
+            body.extend(chunk)
+            if len(body) > MAX_TRANSFER_BYTES + 4096:
+                raise HTTPException(413, 'Transfer file is too large (32 MB maximum)')
+        try:
+            import json
+            payload = json.loads(body)
+            if set(payload) != {'archive', 'key', 'confirm'} or payload['confirm'] is not True:
+                raise ValueError()
+            if not isinstance(payload['archive'], str) or not isinstance(payload['key'], str):
+                raise ValueError()
+        except (ValueError, TypeError):
+            raise HTTPException(422, 'Choose a transfer file, enter its original pairing key, and confirm the move') from None
+        monitor, notifier = app.state.monitor, app.state.notifier
+        if monitor.lock.locked() or notifier.lock.locked():
+            raise HTTPException(409, 'Checks or notifications are running. Try again shortly.')
+        async with monitor.lock, notifier.lock:
+            try:
+                restore_data(monitor, notifier, payload['archive'], payload['key'], settings_path or config_path())
+            except ValueError as exc:
+                raise HTTPException(422, str(exc)) from None
+            except OSError:
+                raise HTTPException(500, 'Unable to save the transfer. Check application storage permissions.') from None
+            app.state.observer_instance = uuid4().hex
+        return {'message': 'Installation restored here. Notification providers are disabled; review Settings before enabling them. This host keeps its own pairing key.'}
 
     @app.get("/favicon.ico", include_in_schema=False)
     async def favicon():
