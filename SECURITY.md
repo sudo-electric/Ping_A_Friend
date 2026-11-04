@@ -1,5 +1,7 @@
 # Security
 
+Reviewed November 4, 2026 against application 0.2.2.
+
 Ping_A_Friend is a local monitoring application in active development. Security
 fixes target the current `main` branch; update older source installs and compiled
 builds before relying on the protections described here. This is not a claim of
@@ -73,10 +75,11 @@ already established private channel before sharing sensitive details.
 - GitHub scanners and dependency alerts can miss vulnerabilities. A historical
   clean dependency audit is not a guarantee about the current dependency set.
   Compiled builds remain test builds; final compiled-server execution has not
-  been verified by the agent in this session.
+  been verified by the agent; the earlier declined runtime-test boundary remains.
 
 ## More detail
 
+- [Database schema and startup upgrade behavior](docs/SCHEMA.md)
 - [Data collected, stored, transmitted, and retained](docs/DATA_HANDLING.md)
 - [Security review and verification boundaries](docs/SECURITY_REVIEW.md)
 - [Notification credentials and delivery behavior](docs/NOTIFICATIONS.md)

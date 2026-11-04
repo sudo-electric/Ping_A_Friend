@@ -1,6 +1,6 @@
 # Internal data-handling reference
 
-Reviewed October 27, 2026 against Ping_A_Friend 0.2.2 source. This describes the
+Reviewed November 4, 2026 against Ping_A_Friend 0.2.2 source. This describes the
 current implementation, rather than a public privacy policy or a packet-capture
 verification of every dependency and deployment.
 
@@ -80,6 +80,11 @@ Normal startup withholds permanent keys and LAN addresses; `--show-access-key`
 explicitly reveals them. Pairing links carry the key in a URL fragment, which is
 removed by the login page before sign-in; sign-in then submits the key to the host.
 
+Optional `/docs` API-explorer viewing can load its standard UI assets from a
+third-party CDN. The main dashboard serves its own static assets. Repository
+scanners and dependency-update checks run in GitHub, not inside installed user
+applications; they do not receive local installation settings/history.
+
 ## Protection boundaries
 
 Private Linux data directories use mode 0700 and private files 0600. Device
@@ -94,3 +99,6 @@ A separately configured VPN does not automatically encrypt every local network h
 Browser cookies are HttpOnly/SameSite and marked Secure when HTTPS is used.
 Per-friend restricted access and individual browser-session revocation are not
 implemented; resetting the owner key revokes existing paired sessions together.
+
+[SCHEMA.md](SCHEMA.md) gives the current table/column inventory and explicitly
+separates database marker 1 from application 0.2.2 and transfer payload 2.

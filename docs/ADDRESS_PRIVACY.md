@@ -1,5 +1,7 @@
 # Address privacy
 
+Reviewed November 4, 2026 against application 0.2.2.
+
 IP addresses are hidden by default whenever the dashboard opens or reloads.
 Device names and configured hostnames remain visible so devices can be identified.
 External path cards (such as Cloudflare and Google DNS) always show their addresses,
@@ -18,5 +20,11 @@ or overwrite saved or unsaved configuration values.
 
 This is display privacy for screenshots/screen sharing. It does not remove
 addresses from the owner-authenticated API, local configuration, browser address
-bar, startup connection URLs, or system/server logs. Existing owner authentication
+bar, explicitly revealed pairing URLs, or system/server logs. Normal startup prints
+only the localhost URL, with private LAN links/keys available by explicit request. Existing owner authentication
 and sharing boundaries remain unchanged.
+
+This includes device names/labels in monthly delayed-response summaries and logs.
+It does not cover private transfer/provider input fields as a general-purpose data
+redaction system. See [DATA_HANDLING.md](DATA_HANDLING.md) for stored and transmitted
+information, and [SCHEMA.md](SCHEMA.md) for where records live.

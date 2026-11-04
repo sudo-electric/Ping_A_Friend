@@ -1,20 +1,23 @@
 # Ping_A_Friend
 
-A working, local-first starter for the FriendWatch / **Friend's Network Test** idea. Python FastAPI, SQLite, and a responsive dashboard with a midnight blue background and softly illuminated cards: green reachability, blue latency, turquoise network status, amber warnings, red failures, and muted violet unavailable states. No frontend build tooling required.
+A local network monitoring application. Documentation reviewed November 4, 2026 against version **0.2.2**. Python FastAPI, SQLite, and a responsive dashboard with a midnight blue background and softly illuminated cards: green reachability, blue latency, turquoise network status, amber warnings, red failures, and muted violet unavailable states. No frontend build tooling required.
 
 ## What works today
 
 - Continuous ICMP/TCP checks organized into named local test groups, with no fixed device or group count cap. Optional external network-path checks.
 - ICMP round-trip measurements, or optional TCP connection checks with explicitly different labels. Per-target delay thresholds.
 - A manual **Recheck now** button. Failing checks open a pending incident. Continued failures for 90 seconds confirm it and save one local host notification per incident. Recovery closes it; another failure starts a new window.
-- Persistent samples, incidents, and local notifications in SQLite; configurable 30-day retention of old samples and resolved incidents.
+- Persistent checks, incidents, availability summaries, delayed-response records, and delivery history in SQLite. Raw samples default to 30 days; local notifications/delivery history last 60 days; availability/device/status/delay events last about 400 days. Active incidents remain, and referenced resolved incidents can outlive raw samples.
+- UTC monthly reports with sampled availability, confirmed device incidents, and per-device delayed-check counts/average/worst latency. Optional outbound Discord, Slack, Telegram, and Twilio notifications, with draft-before-save testing and opt-in monthly/recovery messages.
+- Encrypted installation export/restore to a fresh host, or browser pairing to keep using the original host. Both controls are available before device setup.
+- Private provider credential storage and temporary device-address masking. See [security](SECURITY.md) and [data handling](docs/DATA_HANDLING.md) for the protection boundaries.
 - Independent peer definitions, ownership, view grants, recheck grants, and permission-filtered API responses. These are local policy rules, **not remote login or peer authorization**.
 - A transport interface, working local transport, and explicit unavailable remote transport. Remote peers are never silently checked through the local adapter.
 - Authenticated LAN dashboard access, automatic persistent owner-key setup and browser pairing, same-origin mutation checks, host-header restrictions, validated configuration, and subprocess execution without a shell.
 
 ## Start locally (recommended for the first LAN test)
 
-Install Python 3.11+ (3.12 recommended). Open a terminal in the extracted `ping_a_friend` folder.
+Install Python 3.11+ (3.12 recommended). Open a terminal in the project folder containing `start.sh` (the repository root after cloning).
 
 **macOS / Linux:**
 
@@ -34,8 +37,10 @@ automatically. The access key is generated and loaded automatically, then reused
 on future starts. On macOS/Linux it uses `uv` if available; otherwise Python's
 `venv` and `pip` must be installed (on Ubuntu/Debian, install `python3-venv`).
 
-On the host, open **http://127.0.0.1:8000** if the browser did not open. First
-launch shows **Set up your monitoring** after automatic pairing:
+On the host, the dashboard is **http://127.0.0.1:8000**. If automatic browser
+pairing did not open, stop the app and restart with
+`sh start.sh --no-browser --show-access-key` to reveal a key deliberately and sign
+in there. First launch shows **Set up your monitoring** after automatic pairing:
 
 1. Choose your local display name and a batch size: **2, 3, 4, or 5** simultaneous checks.
 2. Name your first group, for example **Basic tests**, and use **Add device** for
@@ -123,8 +128,8 @@ the host firewall. The app does not change firewall rules, router forwarding,
 VPNs or Twingate policies. For Twingate, define/permit the host's reachable LAN
 address and port; the Connector must be able to reach that address. An existing
 Connector does not make a loopback-only service reachable by itself. Customer
-VPN/Twingate access and an actual second physical laptop were not verified by
-the application tests.
+VPN/Twingate routes are not established or verified by the application tests. The
+user has separately confirmed a Kali machine can pair and display the dashboard.
 
 HTTP is unencrypted: use the default only on a trusted LAN. To encrypt the
 application connection, supply a trusted TLS certificate and key with
@@ -162,10 +167,11 @@ named volume and survive container recreation. `docker compose logs -f` shows lo
 `docker compose down` stops the app and preserves data; `docker compose down -v`
 deletes settings, the access key, and history.
 
-**Upgrading from the earlier Compose version:** an old host `config.json` bind mount
-is no longer used. Re-enter your devices through setup, or migrate the existing
-configuration to `/data/config.json` in the volume before starting the new version.
-Existing SQLite history stays in the same volume.
+Existing installations should preserve the named volume and keep a private backup
+before upgrading. Current Compose stores settings and history together under
+`/data`; do not delete the volume to update the application. For moving between
+hosts/profiles, use the dashboard transfer flow in [DISTRIBUTION.md](docs/DISTRIBUTION.md).
+There is no general importer for every older manual bind-mount layout.
 
 Compose publishes port 8000 on the host interfaces with owner-key authentication
 required. Set `PAF_BIND_IP=127.0.0.1` when invoking Compose to restrict its host
@@ -192,7 +198,9 @@ There is a **separate incident per failing target**. The first failure starts it
 
 Unknown measurements or an excessive observation gap restart pending confirmation. A process restart closes pending incidents, since downtime is not observed. Confirmed incidents survive a restart and remain open until a successful response; unknown readings do not pretend to prove recovery. Changing targets or removing them does not erase history. Keep IDs stable for the same peer/device; use a new ID for a different device so histories do not mix.
 
-The **Local notifications** panel is the initial host notification mechanism. It saves a message addressed to the configured peer owner and shows it only to that local user. It does **not** send email, SMS, browser push, or messages to someone else's computer. Duplicate failures in the same incident do not create duplicate notifications. History remains visible in the peer's incident section after recovery.
+The **Local notifications** panel saves an owner-addressed message once per confirmed target incident. It is separate from optional provider messages. Discord/Slack webhooks, Telegram, and Twilio SMS can send group alerts when configured; direct email and browser push are not implemented. Local notification/delivery history lasts 60 days, starts with two notices/one attempt, and expands by month into a six-entry scroll box. Sending a monthly report does not clear these lists.
+
+In **Notifications & integrations**, enter a provider and use **Send test notification** before saving. A test sends one real message but does not save or enable the draft. Automatic providers start disabled. Monthly reporting uses the host clock and previous **UTC** calendar month, once per owned local group/provider with recorded coverage. No external calendar is connected. Group summaries include delayed-check totals/worst latency; the dashboard includes per-device details and the latest 50 delayed readings. See [NOTIFICATIONS.md](docs/NOTIFICATIONS.md) for exact delivery and retention behavior.
 
 ## Independent peers and permissions
 
@@ -203,11 +211,11 @@ Each peer owns its own targets and has direct grants. For example, Friend's peer
 "grants": [{"user": "owner", "recheck": true}]
 ```
 
-Then Friend can have a separate `parents` peer with an empty grants list. Owner's configured local dashboard cannot view that peer or recheck it. Grants are **not transitive**: sharing Friend's network does not share his parents' network. These rules are enforced on read and recheck endpoints and tested.
+For this local configuration example, Friend can have a separate `parents` peer with an empty grants list. Owner's configured local dashboard cannot view that peer or recheck it. Grants are **not transitive**: sharing Friend's network does not share his parents' network. These rules are enforced on read and recheck endpoints and tested.
 
 `local_user` is an operator-selected identity, not authentication. It cannot be changed via an API query or request header, but someone who can edit local files can change it. LAN sign-in grants access as that configured operator; it does not turn local usernames into authenticated personal accounts. All configured **local** peers are checked from this same observer, even if hidden from the selected local dashboard. Putting a private address from another home into a local peer does not establish a route or contact your friend's network.
 
-For a future remote peer, set `"transport": "remote"`. Its dashboard will explicitly say **Unavailable** and manual recheck will return 501. No connection is attempted. See [the architecture and phase plan](docs/ARCHITECTURE.md).
+For a future remote peer, set `"transport": "remote"`. Its dashboard will explicitly say **Unavailable** and manual recheck will return 501. No connection is attempted. See [the current architecture and proposed friend design](docs/ARCHITECTURE.md).
 
 ## Tests and API
 
@@ -218,26 +226,42 @@ python -m pytest -q
 
 Tests use temporary SQLite databases, a controlled clock, fake transports, and real localhost TCP sockets. They do not depend on a friend's network or public internet. They cover the 89/90-second boundary, recovery, deduplication, restart/gap handling, stale data, status classification, peer isolation, read-only grants, cross-origin protection, configuration validation, and transport behavior.
 
-- `GET /healthz`: process availability and observer error. An available process does not imply devices are healthy.
+- `GET /healthz`: minimal process availability (`{"status":"ok"}`); observer errors are in authenticated `/api/status`. An available process does not imply devices are healthy.
 - `GET /api/status`: permitted peers, latest observations, incident histories, and owner notifications.
 - `POST /api/peers/{id}/recheck`: permitted local peer, JSON body `{}`. A running cycle returns 409; view-only returns 403; hidden peer returns 404; remote returns 501.
+- `GET /api/reports/{YYYY-MM}`: UTC reports for owned local groups, including availability, incidents and delayed checks.
+- `GET/POST /api/notifications/settings`: read redacted provider settings/history or save a provider.
+- `POST /api/notifications/test/{provider}`: send an explicit test using draft/saved credentials.
+- `GET /api/access/pairing`: reveal this installation’s key/links (LAN owner access).
+- `POST /api/access/export` and `/api/access/import`: encrypted transfer, distinct from browser pairing.
 - `GET /docs`: generated API explorer (its standard UI assets require internet).
 
 `GET /api/setup` reads all owned local test groups and the batch size; `POST /api/setup` validates, saves, and applies them. Older single-network setup payloads are still accepted. Groups reuse the existing peer IDs internally, so existing status/recheck API paths remain compatible.
 
 `PAF_CONFIG` overrides the writable config path; `PAF_DB` overrides the database path. If the settings file does not exist, startup loads safe defaults and offers setup. Configuration errors fail startup with a validation message. Numeric settings and all permitted fields are defined in `app/config.py`. Main dependency versions are pinned in `requirements.txt`; `requirements.lock` includes the exact tested runtime dependency set. Update and retest pins deliberately.
 
-## Later phase: remote observation and Twingate
+## Proposed friend connections
 
-**Not implemented:** Twingate integration, remote peer discovery, authenticated agents, approval/revocation of remote sharing, encrypted transport, heartbeat exchange, remote notification delivery, or true peer-to-peer connectivity. No Tailscale dependency, domain, Cloudflare tunnel, or inbound port forwarding is required now.
+The latest design discussion explores full Discord bots between separately owned
+instances for invitations, selected status sharing, rechecks and heartbeats through
+Discord. Only a preview has been requested; none of those bot/friend features is
+implemented. Current Discord integration sends outbound webhook notifications.
 
-A realistic next step is one local observer at each home, with explicitly authorized and authenticated exchange of **health summaries** over an agreed private/outbound transport. Twingate may help provide a private route, but a route alone does not implement application permissions or monitor two remote devices. Before enabling remote use, add authenticated users/agents, owner-controlled scoped grants, revocation, replay protection, stale-heartbeat handling, and TLS. Remote observations must retain their origin; a missing heartbeat must not be labeled a proven remote LAN outage.
+Embedded Twingate integration, friend accounts/consent/revocation, remote agents,
+heartbeat watching and independent loss-of-contact alerts remain future work.
+Twingate or another customer VPN can already supply routes to the local dashboard
+or devices. That route does not add scoped friend permissions. Missing contact
+must mean stale/unknown rather than a proven remote network outage. See
+[ARCHITECTURE.md](docs/ARCHITECTURE.md) for the implemented/proposed boundary.
 
 ## Requirement sources
 
-Based on the attached the original network requirements document, with the subsequent independent-dashboard sharing requirement and the requested name **Ping_A_Friend**. The PDF's global database idea is implemented as one local SQLite store for this installation; no global cross-user cloud database or implicit sharing is claimed.
+The project evolved from the original network-testing requirements and subsequent
+local dashboard, notification and independent-instance sharing discussions. Today
+each installation uses its own SQLite store; a shared cloud database/friend service
+is not implemented.
 
-Implementation references: [FastAPI lifespan](https://fastapi.tiangolo.com/advanced/events/) for observer startup/shutdown and [Docker Compose networking](https://docs.docker.com/compose/how-tos/networking/) for container networking. See `docs/VALIDATION.md` for the checks actually run on this delivery.
+Implementation references: [FastAPI lifespan](https://fastapi.tiangolo.com/advanced/events/) for observer startup/shutdown and [Docker Compose networking](https://docs.docker.com/compose/how-tos/networking/) for container networking. See [VALIDATION.md](docs/VALIDATION.md) for dated evidence and remaining verification limits.
 
 
 ## Single-file test build and privacy audit
@@ -250,3 +274,22 @@ private-data separation, credential migration, and remaining limitations.
 
 See [SECURITY.md](SECURITY.md) for protections, known limits, and private vulnerability
 reporting, and [data handling](docs/DATA_HANDLING.md) for what is stored and sent.
+
+## Database reference
+
+[SCHEMA.md](docs/SCHEMA.md) lists the current 13 application tables and explains why
+the legacy database marker remains `1` while the app is `0.2.2` and transfer payload
+is `2`. Compatible tables are initialized at startup; no general ordered schema
+migration framework is implemented. Definitions and keys remain outside SQLite.
+
+## Documentation map
+
+| Reference | What it explains |
+| --- | --- |
+| [Architecture](docs/ARCHITECTURE.md) | How the current app works and which friend/bot features are only proposed. |
+| [Database schema](docs/SCHEMA.md) | Current tables/columns, retention, version numbers, and upgrade limitations. |
+| [Notifications and reports](docs/NOTIFICATIONS.md) | Provider setup, delivery, UTC monthly scheduling, and delayed-response logs. |
+| [Data handling](docs/DATA_HANDLING.md) | Information collected, stored, logged, and transmitted. |
+| [Distribution and transfers](docs/DISTRIBUTION.md) | Single-file builds, private profiles, browser pairing, and moving data. |
+| [Security policy](SECURITY.md) | Protections, limits, and private vulnerability reporting. |
+| [Validation](docs/VALIDATION.md) | Dated test/build evidence and what remains unverified. |

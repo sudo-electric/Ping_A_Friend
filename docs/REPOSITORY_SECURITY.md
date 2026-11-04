@@ -1,9 +1,10 @@
 # GitHub repository security configuration
 
-Configured October 27, 2026 for `sudo-electric/Ping_A_Friend`. These controls live
+Configured October 27, 2026; settings rechecked November 4, 2026 for
+`sudo-electric/Ping_A_Friend`. These controls live
 in GitHub repository settings; copying the source does not copy those settings.
-At configuration time GitHub reported the repository as public. This work did
-not change its visibility.
+The repository is intentionally public, confirmed by the user. Its visibility
+does not expose a running installation or make private data a repository input.
 
 ## Enabled controls
 
@@ -17,9 +18,10 @@ not change its visibility.
 - **Private vulnerability reporting:** researchers can use the private advisory
   form linked in the root `SECURITY.md`.
 - **CodeQL default setup:** GitHub-managed code scanning is configured with the
-  default query suite and both remote/local threat models. Initial setup/analysis
-  runs separately in GitHub Actions; enabled configuration alone does not prove
-  a successful scan or absence of findings.
+  default query suite and both remote/local threat models. The initial setup/analyses
+  completed successfully October 27. The configured
+  schedule is weekly, with GitHub-managed event triggers. Enabled configuration
+  alone does not prove any later scan succeeded or has no findings.
 - **Default-branch history protection:** an active ruleset blocks force pushes and
   branch deletion. Ordinary commits can still be pushed directly; pull-request
   reviews, status-check gates, signed commits, and automatic merging were not
@@ -54,7 +56,7 @@ GitHub documentation:
 - [CodeQL default setup](https://docs.github.com/en/code-security/how-tos/find-and-fix-code-vulnerabilities/configure-code-scanning/configure-code-scanning)
 - [Rulesets API](https://docs.github.com/en/rest/repos/rules)
 
-## Initial CodeQL review
+## Historical initial CodeQL review — October 27, 2026
 
 The first setup run succeeded for Python and JavaScript/TypeScript. Its 27 findings
 were reviewed using the analysis traces and the cited source locations:
@@ -74,5 +76,5 @@ were reviewed using the analysis traces and the cited source locations:
 
 The individual alerts retain review comments on GitHub. Scanning and both threat
 models remain enabled; no query, source directory, or test directory was excluded.
-Dependency and secret-alert counts were zero when checked. These dated results do
-not guarantee that later pushes or newly published advisories will remain clean.
+Dependency and secret-alert counts were zero at that October 27 check. These dated
+results do not guarantee that later pushes or newly published advisories will remain clean.

@@ -1,5 +1,7 @@
 # Single-file Linux test build
 
+Reviewed November 4, 2026 against application 0.2.2.
+
 The release ZIP contains one executable, `Ping_A_Friend-linux-x86_64`. Share that
 ZIP or executable, rather than the working project folder. The executable bundles
 Python, runtime dependencies, dashboard assets, safe disabled defaults, and
@@ -32,8 +34,8 @@ for every OS. This is an unsigned local test build, not a signed installer.
 
 **Verification limit:** archive contents and host/privacy markers were checked,
 and the source test suite passed. An earlier candidate's `--help` ran successfully.
-Launching the compiled server for live smoke checks was not approved in this
-session; the final rebuilt executable has not had end-to-end runtime verification.
+Launching the compiled server for live smoke checks was declined earlier; the
+final rebuilt executable has not had end-to-end runtime verification.
 `tools/smoke_release.py` documents an isolated loopback test for a later approved run.
 
 ## Where private state goes
@@ -92,7 +94,7 @@ a SHA-256 checksum, and a privacy audit report. Checksums detect corruption; the
 do not substitute for publisher signing. Email attachment size/type restrictions
 vary, so a provider may still require a download link for the ZIP.
 
-## Connect another computer or move the installation (0.2.1)
+## Connect another computer or move the installation
 
 Both choices are in Settings before monitoring setup:
 
@@ -122,8 +124,10 @@ Settings before enabling notifications. History gaps remain unobserved time, and
 pending failure confirmation restarts rather than counting the transfer interval.
 The original computer is not remotely stopped, erased, or changed by export.
 
-Transfer files are limited to 32 MB; oversized histories return an error instead
-of a partial transfer. Export requires LAN mode so there is a pairing key. Imported
+The importer accepts at most 32 MiB per encrypted archive and 500,000 rows per
+table. The exporter additionally rejects serialized plaintext payloads over 16 MiB
+before encryption; larger histories return an error instead of a partial export.
+Export requires LAN mode so there is a pairing key. Imported
 addresses must be reachable from the new host’s existing network/VPN routes.
 Download and unlock locally or use HTTPS: ordinary LAN HTTP does not protect an
 entered transfer key on the network. Use a fresh data profile if the destination
@@ -136,3 +140,7 @@ Version 0.2.2 transfer files also include the 400-day delayed-response log and i
 logging start marker. The transfer payload is version 2; version 1 exports from
 0.2.1 remain accepted, with no invented earlier delay records. Older receiving
 builds must be updated before they can read a version 2 export.
+
+Moving installations and upgrading SQLite structure are separate operations.
+[SCHEMA.md](SCHEMA.md) explains the legacy database marker and compatible startup
+table creation; the file transfer is not a general schema migration framework.

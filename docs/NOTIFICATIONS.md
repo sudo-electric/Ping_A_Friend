@@ -1,6 +1,7 @@
 # Notifications and availability reports
 
-This increment adds owner notifications and monthly reporting to the local app.
+Reviewed November 4, 2026 against application 0.2.2. Owner notifications and monthly
+reporting are implemented in the local app.
 It does not yet connect installations, create friend accounts, or provide an
 independent heartbeat watcher. Closing the browser does not stop the running
 server; stopping the server stops checks and notification delivery.
@@ -83,8 +84,8 @@ Official setup references:
 These are outbound alerts. Telegram commands, Discord interactions, Slack slash
 commands, OAuth installation, and friend-triggered actions are not implemented.
 Discord mentions are disabled. No account, webhook, bot, or phone number is
-created automatically. No provider credentials or live destinations were supplied
-or used during implementation tests.
+created automatically. Implementation tests use fake senders. Separately, the user
+has reported successful real Discord and Slack notification tests.
 
 ## Alert behavior
 
@@ -120,13 +121,18 @@ with the provider as appropriate. Only notify recipients who consented.
 
 A local app cannot send when its host/internet connection fails. Provider outages
 also do not change measured device health. Independent loss-of-contact alerts
-belong to the future shared service.
+need a future online watcher or shared service.
 
 ## Monthly reporting
 
 The dashboard has a UTC month selector, elapsed availability totals, and confirmed
 incident counts per device. Optional monthly messages summarize the previous UTC
-calendar month once per group/provider. On startup, a missed prior-month summary
+calendar month once per group/provider. This uses the host's clock; no calendar
+account/service is connected. A new month becomes eligible at 00:00 UTC on its
+first day. The delivery worker normally checks every five seconds, but busy sends,
+network failures and retries can delay delivery. The provider must be enabled,
+monthly summaries selected, and the previous month must have observed coverage.
+On startup, a missed prior-month summary
 can be queued when that month has recorded coverage; earlier missed months are
 not automatically backfilled.
 
@@ -146,25 +152,19 @@ Availability intervals and confirmed device-event records survive the configurab
 raw-sample retention (30 days by default). They are retained for approximately
 400 days and are merged when consecutive observations have identical availability
 and device counts. No historical uptime is invented for the period before this
-version began collecting summaries. No graph or automatic OS startup service has
-been added in this increment.
+version began collecting summaries. There is no graph or native OS startup-service
+installer. Compose has an automatic container restart policy.
 
-## Next implementation boundary
+## Proposed friend/bot boundary
 
-Both people will keep the full application. A separate service still needs:
-
-1. Authenticated user/installation identities, enrollment and credential rotation.
-2. Expiring invitations, explicit selected-group grants, acceptance and revocation.
-3. Outbound authenticated summary/heartbeat synchronization with sequence numbers
-   and expiry, plus honest stale/unknown status when contact is lost.
-4. A Friends dashboard and notification consent associated with each relationship.
-5. Service-side provider delivery and quotas so alerts work when the reporting
-   installation is offline; the local owner key must never become a friend token.
-6. Cross-instance tests, deployment/TLS, backups, and opt-in background startup.
-
-These are remaining implementation steps, not deployed or enabled capabilities.
-The user has authorized development; actual provider account setup, credential
-entry, message destinations, and service deployment still need concrete choices.
+The latest preview explores independently owned instances with Discord bots and
+explicit friend invitations, selected-group permissions, revocation, authenticated
+message exchange, rechecks and heartbeat expiry. These are not implemented.
+Current integrations are outbound owner alerts; there is no Discord Gateway bot,
+slash command handler, Telegram command receiver, or cross-instance sharing.
+An independent watcher or online peer would be needed to report a silent host.
+Earlier Cloudflare/Telegram-command approaches remain options, not active services.
+See [ARCHITECTURE.md](ARCHITECTURE.md) and [SCHEMA.md](SCHEMA.md).
 
 ## Delayed-response history (0.2.2)
 
@@ -188,3 +188,5 @@ not resent retroactively. External-path delays are not included in device totals
 Encrypted migration exports include these logs. New builds accept older 0.2.1
 transfer files, which have no delayed-response log; 0.2.1 builds cannot restore
 the newer transfer payload version. Upgrade the receiving build first.
+
+Database table/column details and startup upgrade behavior are in [SCHEMA.md](SCHEMA.md).
