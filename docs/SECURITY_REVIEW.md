@@ -38,8 +38,10 @@ independent penetration test or a guarantee against every vulnerability.
   address column; normal records still need identifiers/configured addresses.
 - Exact runtime pins, developer tests, release audits and GitHub dependency/secret/
   code scanning support ongoing review. The historical Starlette advisories were
-  addressed in the October 26 dependency update; that dated audit is not a new
-  November advisory check.
+  addressed in October. On November 4 the development pytest pin was updated to
+  9.0.3 for GHSA-6w46-j5rx-g56g, and a fresh audit of runtime/development/build
+  requirements reported no known vulnerabilities or skipped dependencies on this
+  platform.
 
 See [SECURITY.md](../SECURITY.md) for the public policy, private reporting and
 boundaries; [REPOSITORY_SECURITY.md](REPOSITORY_SECURITY.md) records GitHub settings.
@@ -75,7 +77,8 @@ and new application versions against the same database. See [SCHEMA.md](SCHEMA.m
 
 ## Evidence and limits
 
-The October 27 source baseline passed **106 Python tests and 15 JavaScript cases**.
+The November 4 security follow-up passed **106 Python tests and 15 JavaScript cases**
+with pytest 9.0.3.
 The 0.2.2 Linux artifact privacy check inspected **702 members** with no detected
 private markers; final assets, ZIP integrity and checksum were verified. Its
 compiled-server runtime test remains unperformed under the earlier declined test
@@ -84,7 +87,7 @@ boundary. The build is unsigned and targets compatible Linux x86_64/glibc 2.39.
 The November 4 documentation review compared local database table/column metadata
 read-only with a fresh temporary current-source database; they match. It did not
 migrate live data, restart the host or send provider messages. The existing archive
-was checked, not rebuilt for prose changes. No new full test, packet capture,
+was checked, not rebuilt for prose changes. The subsequent test/dependency follow-up is recorded above; no packet capture,
 full-history privacy audit or penetration test is implied.
 
 Source is version-controlled in the intentionally public GitHub repository.

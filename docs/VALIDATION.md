@@ -6,8 +6,9 @@ runtime verification automatically.
 
 ## Current source baseline
 
-The latest complete source test run, October 27, passed **106 Python tests** and
-**15 JavaScript cases**. Coverage includes:
+The latest complete source test run, November 4, passed **106 Python tests** and
+**15 JavaScript cases** using patched pytest 9.0.3. The application source remains
+0.2.2; only the development test-runner pin changed. Coverage includes:
 
 - ICMP parsing/permissions/timeouts and real localhost TCP success/refusal.
 - Strict batch barriers for sizes 2–5, shared limits across groups, long lists,
@@ -26,8 +27,9 @@ The latest complete source test run, October 27, passed **106 Python tests** and
   UTC/future filtering, full totals versus latest-50 preview, and older databases
   gaining tables without inventing earlier delay records.
 
-Source compilation, JavaScript syntax and Git whitespace checks passed for that
-source revision. No live provider credentials are needed by the tests.
+Source compilation, JavaScript syntax and Git whitespace checks passed for the
+0.2.2 source revision. The November 4 follow-up reran the full Python/JavaScript
+suites after the pytest update. No live provider credentials are needed by the tests.
 
 ## Build evidence
 
@@ -49,8 +51,12 @@ Do not treat package checks as an end-to-end runtime result.
 - GitHub security settings were read back; they are documented separately in
   [REPOSITORY_SECURITY.md](REPOSITORY_SECURITY.md).
 
-This is a documentation-only review, not a new full test, penetration test,
-dependency advisory audit or live notification/month-end delivery test.
+The initial documentation review was read-only. A subsequent security follow-up
+on November 4 updated the development pytest pin from 8.3.5 to 9.0.3 for
+[GHSA-6w46-j5rx-g56g](https://github.com/advisories/GHSA-6w46-j5rx-g56g), reran all
+106 Python/15 JavaScript cases, and audited runtime/development/build requirements
+with pip-audit: no known vulnerabilities or skipped dependencies were reported on
+this platform. No penetration test or live notification/month-end send is implied.
 
 ## Earlier tests and user observations
 

@@ -78,3 +78,20 @@ The individual alerts retain review comments on GitHub. Scanning and both threat
 models remain enabled; no query, source directory, or test directory was excluded.
 Dependency and secret-alert counts were zero at that October 27 check. These dated
 results do not guarantee that later pushes or newly published advisories will remain clean.
+
+## Security follow-up — November 4, 2026
+
+GitHub reported Dependabot alert 1 for development-only pytest 8.3.5
+([GHSA-6w46-j5rx-g56g](https://github.com/advisories/GHSA-6w46-j5rx-g56g)). The pin
+was updated to patched 9.0.3; all 106 Python and 15 JavaScript cases passed. A fresh
+pip-audit check of runtime/development/build requirements reported no known
+vulnerabilities and no skipped dependencies on this platform. GitHub resolves
+dependency alerts after it processes the updated manifest; they are not dismissed
+manually to hide an affected version. The development dependency is not bundled
+in the distributed application.
+
+Repository settings were read back: dependency security updates, secret scanning
+and push protection, CodeQL (remote/local threat models), private reporting, and
+branch force-push/deletion protections remain enabled. Default Actions tokens stay
+read-only and cannot approve pull requests. Open CodeQL/secret alert counts were
+zero when checked. These are dated checks, not a guarantee against future issues.

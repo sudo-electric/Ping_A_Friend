@@ -169,10 +169,23 @@ Discord as transport would itself be the relay; a watching peer must remain onli
 
 ## Validation reference
 
-The latest full source run (October 27) passed 106 Python tests and 15 JavaScript
-cases. The 0.2.2 build audit checked 702 members with no private-marker findings;
-ZIP integrity/assets/checksum matched. The November 4 review is documentation-only:
+The latest full source run (November 4) passed 106 Python tests and 15 JavaScript
+cases after updating the development pytest pin to patched 9.0.3 for
+GHSA-6w46-j5rx-g56g. A fresh runtime/development/build requirements audit found no
+known vulnerabilities or skipped dependencies on this platform. The 0.2.2 build audit checked 702 members with no private-marker findings;
+ZIP integrity/assets/checksum matched. The initial November 4 documentation review used:
 read-only local schema comparison, fresh temporary schema initialization, Markdown
 links/inventory/claim checks and existing archive verification. No live database
 migration, host restart, network reconfiguration or provider send is authorized
 by this documentation cleanup. See [docs/VALIDATION.md](docs/VALIDATION.md).
+
+
+## November 4 security follow-up
+
+The user requested security/safety checks during the documentation refresh. Fixed
+the real development-only pytest advisory by pinning 9.0.3, verified its advisory
+range, reran 106 Python/15 JavaScript cases, and audited runtime/development/build
+requirements successfully. Rechecked existing GitHub controls and open CodeQL/secret
+alerts (zero); preserve real dependency alerts until manifest processing resolves
+them rather than dismissing affected pins. No runtime dependency, live database,
+credential, provider send, host network or compiled-server execution was changed.
