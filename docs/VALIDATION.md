@@ -103,3 +103,7 @@ node --test tests/privacy.test.cjs tests/history.test.cjs
 Run checks in a development environment. Tests use temporary stores and controlled
 values; the real-socket case may need permission to bind localhost. Compiled runtime
 checks require separate authorization under the existing recorded boundary.
+
+The dependency-refresh follow-up renamed the exact pinned runtime requirements file
+to `requirements-runtime.txt` so Dependabot can fetch its includes. Launchers, Docker
+and build license collection were updated consistently; package versions are unchanged.

@@ -238,7 +238,7 @@ Tests use temporary SQLite databases, a controlled clock, fake transports, and r
 
 `GET /api/setup` reads all owned local test groups and the batch size; `POST /api/setup` validates, saves, and applies them. Older single-network setup payloads are still accepted. Groups reuse the existing peer IDs internally, so existing status/recheck API paths remain compatible.
 
-`PAF_CONFIG` overrides the writable config path; `PAF_DB` overrides the database path. If the settings file does not exist, startup loads safe defaults and offers setup. Configuration errors fail startup with a validation message. Numeric settings and all permitted fields are defined in `app/config.py`. Main dependency versions are pinned in `requirements.txt`; `requirements.lock` includes the exact tested runtime dependency set. Update and retest pins deliberately.
+`PAF_CONFIG` overrides the writable config path; `PAF_DB` overrides the database path. If the settings file does not exist, startup loads safe defaults and offers setup. Configuration errors fail startup with a validation message. Numeric settings and all permitted fields are defined in `app/config.py`. Main dependency versions are pinned in `requirements.txt`; `requirements-runtime.txt` includes the exact tested runtime dependency set. Update and retest pins deliberately.
 
 ## Proposed friend connections
 

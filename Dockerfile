@@ -5,8 +5,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends iputils-ping \
     && rm -rf /var/lib/apt/lists/* \
     && groupadd --gid 10001 paf && useradd --uid 10001 --gid paf --no-create-home paf \
     && mkdir /data && chown paf:paf /data
-COPY requirements.lock .
-RUN pip install --no-cache-dir -r requirements.lock
+COPY requirements-runtime.txt .
+RUN pip install --no-cache-dir -r requirements-runtime.txt
 COPY app ./app
 COPY config.example.json .
 USER 10001:10001

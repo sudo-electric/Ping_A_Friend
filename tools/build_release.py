@@ -45,7 +45,7 @@ def write_notices(stage):
     python_license = Path('/usr/share/doc/python3.12/copyright')
     if python_license.is_file():
         parts.append(python_license.read_text())
-    packages = [line.split('==')[0] for line in (ROOT/'requirements.lock').read_text().splitlines() if '==' in line]
+    packages = [line.split('==')[0] for line in (ROOT/'requirements-runtime.txt').read_text().splitlines() if '==' in line]
     for name in packages + ['pyinstaller']:
         dist = distribution(name)
         parts.append(f'\n{name} {dist.version}')

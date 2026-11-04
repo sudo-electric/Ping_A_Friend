@@ -34,7 +34,7 @@ does not expose a running installation or make private data a repository input.
 ## Review and maintenance
 
 Review findings under the repository's **Security** tab. Review update pull
-requests before merging; keep `requirements.txt` and `requirements.lock` in sync,
+requests before merging; keep `requirements.txt` and `requirements-runtime.txt` in sync,
 then run the Python/JavaScript checks. The prior dependency audit is a dated
 snapshot, not a replacement for ongoing alerts.
 
@@ -95,3 +95,9 @@ and push protection, CodeQL (remote/local threat models), private reporting, and
 branch force-push/deletion protections remain enabled. Default Actions tokens stay
 read-only and cannot approve pull requests. Open CodeQL/secret alert counts were
 zero when checked. These are dated checks, not a guarantee against future issues.
+
+GitHub's pip graph updater initially failed to fetch the custom `requirements.lock`
+include. The exact same pinned runtime set is now `requirements-runtime.txt`, a
+requirements filename fetched by Dependabot. Development/build includes, native
+launchers, Docker, license collection and documentation use the new name. The
+rename changes no runtime package versions and leaves installed private data alone.

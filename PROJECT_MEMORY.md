@@ -189,3 +189,8 @@ requirements successfully. Rechecked existing GitHub controls and open CodeQL/se
 alerts (zero); preserve real dependency alerts until manifest processing resolves
 them rather than dismissing affected pins. No runtime dependency, live database,
 credential, provider send, host network or compiled-server execution was changed.
+
+GitHub marked the pytest alert fixed, but its separate pip graph updater failed to
+fetch the custom requirements.lock include. Renamed the identical pinned runtime
+set to requirements-runtime.txt and updated all launch/build/Docker/development
+references. Keep this filename so dependency scanning can fetch includes.
