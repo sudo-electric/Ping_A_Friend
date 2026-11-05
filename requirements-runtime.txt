@@ -10,7 +10,7 @@ h11==0.16.0
 idna==3.20
 opentelemetry-api==1.45.1
 pycparser==3.12
-pydantic==2.14.1
+pydantic==2.14.2
 pydantic-core==2.50.1
 starlette==1.10.0
 typing-extensions==4.16.0
